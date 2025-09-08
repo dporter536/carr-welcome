@@ -66,107 +66,99 @@
 
 <script>
 (async () => {
-  /* ========= CONFIG ========= */
   const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
   const params = new URLSearchParams(location.search);
   const cabinParam = params.get('cabin') || 'C1';
   const up = cabinParam.toUpperCase();
   const cabinLabel = up==='C1'?'Cabin 1':up==='C2'?'Cabin 2':up==='C3'?'Cabin 3':cabinParam;
 
-  // Video/slideshow timings
-  const SLIDE_DURATION_MS = 8000;     // each image
-  const SLIDESHOW_TOTAL_MS = SLIDE_DURATION_MS * 3; // total before we return to video
-  const VIDEO_FALLBACK_START_MS = 8000; // if video hasn't started by 8s, show slides
-
-  /* ======== DATA FETCH / RENDER ======== */
   const r = await fetch(`${API}?cabin=${encodeURIComponent(cabinParam)}&v=${Date.now()}`, { cache:'no-store' });
   const j = await r.json().catch(() => ({}));
 
-  const headline = document.getElementById('headline');
-  const sub = document.getElementById('sub');
-  const meta = document.getElementById('meta');
-  const extra = document.getElementById('extra');
-  document.getElementById('spin').style.display = 'none';
+  const headline=document.getElementById('headline');
+  const sub=document.getElementById('sub');
+  const meta=document.getElementById('meta');
+  const extra=document.getElementById('extra');
+  document.getElementById('spin').style.display='none';
 
-  const s = (n,w) => n===1?w:w+'s';
+  const s=(n,w)=>n===1?w:w+'s';
 
   if (j && j.success && j.guestName) {
-    const first = j.guestName.trim().split(/\s+/)[0];
-    headline.textContent = `Welcome, ${first}!`;
-    sub.textContent = `${cabinLabel} • ${j.dateISO}`;
+    const first=j.guestName.trim().split(/\s+/)[0];
+    headline.textContent=`Welcome, ${first}!`;
+    sub.textContent=`${cabinLabel} • ${j.dateISO}`;
     if (j.stayNight && j.nights && j.checkoutPretty) {
-      meta.textContent = `Night ${j.stayNight} • Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
+      meta.textContent=`Night ${j.stayNight} • Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
     } else if (j.nights && j.checkoutPretty) {
-      meta.textContent = `Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
+      meta.textContent=`Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
     } else {
-      meta.textContent = 'We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
+      meta.textContent='We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
     }
-    extra.textContent = '';
+    extra.textContent='';
   } else if (j && j.success) {
-    headline.textContent = 'Welcome to Carrick-a-Rede Retreat';
-    sub.textContent = cabinLabel;
-    meta.textContent = `Today: ${new Date().toLocaleDateString('en-GB')}`;
-    extra.textContent = j.phase==='neutral_changeover' ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.' : '';
+    headline.textContent='Welcome to Carrick-a-Rede Retreat';
+    sub.textContent=cabinLabel;
+    meta.textContent=`Today: ${new Date().toLocaleDateString('en-GB')}`;
+    extra.textContent=j.phase==='neutral_changeover' ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.' : '';
   } else {
-    headline.textContent = 'Welcome';
-    sub.textContent = cabinLabel;
-    meta.textContent = 'Unable to load booking details right now.';
-    extra.textContent = '';
+    headline.textContent='Welcome';
+    sub.textContent=cabinLabel;
+    meta.textContent='Unable to load booking details right now.';
+    extra.textContent='';
   }
 
-  /* ======== VIDEO → SLIDESHOW → VIDEO LOOP ======== */
-  const video = document.getElementById('bgVideo');
-  const slidesWrap = document.getElementById('slides');
-  const slides = Array.from(slidesWrap.querySelectorAll('.slide'));
-  let slideIdx = 0, slideTimer = null, backToVideoTimer = null, safetyTimer = null;
+  /* ===== Video → Slideshow → Video loop ===== */
+  const video=document.getElementById('bgVideo');
+  const slidesWrap=document.getElementById('slides');
+  const slides=Array.from(slidesWrap.querySelectorAll('.slide'));
+  let slideIdx=0, slideTimer=null, backToVideoTimer=null;
 
   function showVideo() {
     clearTimers();
     slidesWrap.classList.remove('visible');
     video.classList.add('visible');
-    // play then schedule switch to slideshow after one run (use duration if known)
-    const play = () => {
-      try { video.currentTime = 0; video.play().catch(()=>{}); } catch(e){}
-      const dur = isFinite(video.duration) && video.duration>2 ? video.duration*1000 : 30000;
-      backToVideoTimer = setTimeout(showSlideshow, dur);
-    };
-    if (video.readyState >= 1) play(); else video.addEventListener('loadedmetadata', play, {once:true});
+    video.currentTime=0; video.play().catch(()=>{});
+    const dur=(isFinite(video.duration)&&video.duration>2?video.duration*1000:30000);
+    backToVideoTimer=setTimeout(showSlideshow,dur);
   }
 
   function showSlideshow() {
     clearTimers();
     video.classList.remove('visible');
     slidesWrap.classList.add('visible');
-    slideIdx = 0;
+    slideIdx=0;
     slides.forEach(s=>s.classList.remove('active'));
     slides[0].classList.add('active');
-
-    slideTimer = setInterval(()=>{
+    slideTimer=setInterval(()=>{
       slides[slideIdx].classList.remove('active');
-      slideIdx = (slideIdx+1)%slides.length;
+      slideIdx=(slideIdx+1)%slides.length;
       slides[slideIdx].classList.add('active');
-    }, SLIDE_DURATION_MS);
-
-    backToVideoTimer = setTimeout(showVideo, SLIDESHOW_TOTAL_MS);
+    },8000);
+    backToVideoTimer=setTimeout(showVideo,slides.length*8000);
   }
 
-  function clearTimers(){
-    if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
-    if (backToVideoTimer) { clearTimeout(backToVideoTimer); backToVideoTimer = null; }
-    if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
-  }
+  function clearTimers(){if(slideTimer){clearInterval(slideTimer);slideTimer=null;}if(backToVideoTimer){clearTimeout(backToVideoTimer);backToVideoTimer=null;}}
 
-  // If video starts, show it; otherwise start slideshow after fallback timeout
-  const start = () => {
-    safetyTimer = setTimeout(()=>{ if (video.paused) showSlideshow(); }, VIDEO_FALLBACK_START_MS);
-    video.addEventListener('playing', ()=>{ showVideo(); }, {once:true});
-    try { video.play().catch(()=>{}); } catch(e){}
-  };
-  start();
+  video.addEventListener('playing',()=>showVideo(),{once:true});
+  setTimeout(()=>{if(video.paused) showSlideshow();},8000);
+  video.play().catch(()=>{});
 
-  /* ======== SCHEDULED REFRESHES + HEARTBEAT ======== */
+  /* ===== Scheduled refreshes + heartbeat ===== */
   function scheduleReloads(times){
-    const now = new Date();
-    for (const [h,m] of times){
-      const t = new Date();
-      t.setHours(h,m,0
+    const now=new Date();
+    for(const [h,m] of times){
+      const t=new Date();
+      t.setHours(h,m,0,0);
+      if(t<=now) t.setDate(t.getDate()+1);
+      setTimeout(()=>location.reload(),t-now);
+    }
+  }
+  function startHeartbeat(minutes=30){
+    setInterval(()=>location.reload(),minutes*60*1000);
+  }
+  scheduleReloads([[7,28],[11,31],[14,31]]);
+  startHeartbeat(30);
+})();
+</script>
+</body>
+</html>
