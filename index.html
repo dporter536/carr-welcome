@@ -7,29 +7,53 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --glass-bg: rgba(255,255,255,.08); --glass-bd: rgba(255,255,255,.18); }
-  html,body{height:100%;margin:0;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b0f0d;color:#fff}
-  .bg{position:fixed;inset:0;background:url('https://images.unsplash.com/photo-1526481280698-8fcc13fd66a4?q=80&w=2400&auto=format&fit=crop') center/cover no-repeat;filter:brightness(.45)}
-  .wrap{position:relative;z-index:1;height:100%;display:grid;place-items:center;text-align:center;padding:4vmin}
-  .card{backdrop-filter:blur(10px);background:var(--glass-bg);border:1px solid var(--glass-bd);border-radius:24px;padding:4vmin 6vmin;max-width:86ch;box-shadow:0 10px 40px rgba(0,0,0,.4)}
-  .brand{position:fixed;top:20px;left:20px;opacity:.95;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-  .brand small{display:block;font-weight:600;opacity:.8;font-size:.75rem;letter-spacing:.08em}
+  :root{--glass-bg:rgba(255,255,255,.08);--glass-bd:rgba(255,255,255,.18);}
+  html,body{height:100%;margin:0;background:#0b0f0d;color:#fff;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  /* Background layers */
+  .stage{position:fixed;inset:0;overflow:hidden}
+  video.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
+  .slides{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
+  .slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease}
+  .slide.active{opacity:1}
+  .visible{opacity:1}
+
+  /* Branding + card */
+  .brand{position:fixed;top:24px;left:24px;display:flex;gap:12px;align-items:center;z-index:3}
+  .brand img{height:44px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+  .brand .tag{font-weight:600;letter-spacing:.08em;opacity:.85;text-transform:uppercase}
+
+  .wrap{position:relative;z-index:2;height:100%;display:grid;place-items:center;text-align:center;padding:5vmin}
+  .card{backdrop-filter:blur(10px);background:var(--glass-bg);border:1px solid var(--glass-bd);border-radius:24px;
+        padding:4vmin 6vmin;max-width:86ch;box-shadow:0 10px 40px rgba(0,0,0,.45)}
   h1{font-size:clamp(2.2rem,4vw + 1rem,4.4rem);margin:1rem 0 .25rem;line-height:1.05}
   h2{font-size:clamp(1.05rem,1.2vw + .8rem,1.6rem);font-weight:600;opacity:.95;margin:.2rem 0 .8rem}
-  .meta{opacity:.9;font-size:1.05rem;letter-spacing:.02em}
-  .small{opacity:.75;font-size:.95rem;margin-top:1.2rem}
+  .meta{opacity:.92;font-size:1.05rem;letter-spacing:.02em}
+  .small{opacity:.78;font-size:.95rem;margin-top:1rem}
   .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:2rem auto 0}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"></div>
 
-<div class="brand">
-  Carrick-a-Rede Retreat
-  <small>Causeway Coast</small>
+<!-- Background: video + slideshow -->
+<div class="stage">
+  <video id="bgVideo" class="bg" autoplay muted playsinline preload="auto">
+    <source src="assets/video.mp4" type="video/mp4">
+  </video>
+  <div id="slides" class="slides">
+    <div class="slide" style="background-image:url('assets/DJI_0868.JPG')"></div>
+    <div class="slide" style="background-image:url('assets/DJI_0970.JPG')"></div>
+    <div class="slide" style="background-image:url('assets/IMG_4182-EDIT-1.jpg')"></div>
+  </div>
 </div>
 
+<!-- Branding -->
+<div class="brand">
+  <img src="assets/logo.png" alt="Carrick-a-Rede Retreat logo">
+  <div class="tag">Causeway Coast</div>
+</div>
+
+<!-- Welcome card -->
 <div class="wrap">
   <div class="card">
     <h1 id="headline">Welcome</h1>
@@ -42,75 +66,107 @@
 
 <script>
 (async () => {
-  const params = new URLSearchParams(location.search);
-  const cabinParam = params.get('cabin') || 'C1'; // default if missing
+  /* ========= CONFIG ========= */
   const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
-
+  const params = new URLSearchParams(location.search);
+  const cabinParam = params.get('cabin') || 'C1';
   const up = cabinParam.toUpperCase();
-  const cabinLabel = up === 'C1' ? 'Cabin 1' : up === 'C2' ? 'Cabin 2' : up === 'C3' ? 'Cabin 3' : cabinParam;
+  const cabinLabel = up==='C1'?'Cabin 1':up==='C2'?'Cabin 2':up==='C3'?'Cabin 3':cabinParam;
 
-  const s = (n, word) => n === 1 ? word : word + 's';
+  // Video/slideshow timings
+  const SLIDE_DURATION_MS = 8000;     // each image
+  const SLIDESHOW_TOTAL_MS = SLIDE_DURATION_MS * 3; // total before we return to video
+  const VIDEO_FALLBACK_START_MS = 8000; // if video hasn't started by 8s, show slides
 
-  try {
-    const r = await fetch(`${API}?cabin=${encodeURIComponent(cabinParam)}&v=${Date.now()}`, { cache:'no-store' });
-    const j = await r.json();
+  /* ======== DATA FETCH / RENDER ======== */
+  const r = await fetch(`${API}?cabin=${encodeURIComponent(cabinParam)}&v=${Date.now()}`, { cache:'no-store' });
+  const j = await r.json().catch(() => ({}));
 
-    document.getElementById('spin').style.display = 'none';
-    const headline = document.getElementById('headline');
-    const sub = document.getElementById('sub');
-    const meta = document.getElementById('meta');
-    const extra = document.getElementById('extra');
+  const headline = document.getElementById('headline');
+  const sub = document.getElementById('sub');
+  const meta = document.getElementById('meta');
+  const extra = document.getElementById('extra');
+  document.getElementById('spin').style.display = 'none';
 
-    if (j.success && j.guestName) {
-      const first = j.guestName.trim().split(/\s+/)[0];
-      headline.textContent = `Welcome, ${first}!`;
-      sub.textContent = `${cabinLabel} • ${j.dateISO}`;
+  const s = (n,w) => n===1?w:w+'s';
 
-      if (j.stayNight && j.nights && j.checkoutPretty) {
-        meta.textContent = `Night ${j.stayNight} • Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
-      } else if (j.nights && j.checkoutPretty) {
-        meta.textContent = `Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
-      } else {
-        meta.textContent = 'We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
-      }
-      extra.textContent = '';
-    } else if (j.success) {
-      headline.textContent = 'Welcome to Carrick-a-Rede Retreat';
-      sub.textContent = cabinLabel;
-      meta.textContent = `Today: ${new Date().toLocaleDateString('en-GB')}`;
-      extra.textContent = j.phase === 'neutral_changeover'
-        ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.'
-        : '';
+  if (j && j.success && j.guestName) {
+    const first = j.guestName.trim().split(/\s+/)[0];
+    headline.textContent = `Welcome, ${first}!`;
+    sub.textContent = `${cabinLabel} • ${j.dateISO}`;
+    if (j.stayNight && j.nights && j.checkoutPretty) {
+      meta.textContent = `Night ${j.stayNight} • Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
+    } else if (j.nights && j.checkoutPretty) {
+      meta.textContent = `Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
     } else {
-      headline.textContent = 'Welcome';
-      sub.textContent = cabinLabel;
-      meta.textContent = 'Unable to load booking details right now.';
-      extra.textContent = '';
+      meta.textContent = 'We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
     }
-  } catch (e) {
-    document.getElementById('spin').style.display = 'none';
-    document.getElementById('headline').textContent = 'Welcome';
-    document.getElementById('sub').textContent = cabinLabel;
-    document.getElementById('meta').textContent = 'Network unavailable.';
-    document.getElementById('extra').textContent = '';
+    extra.textContent = '';
+  } else if (j && j.success) {
+    headline.textContent = 'Welcome to Carrick-a-Rede Retreat';
+    sub.textContent = cabinLabel;
+    meta.textContent = `Today: ${new Date().toLocaleDateString('en-GB')}`;
+    extra.textContent = j.phase==='neutral_changeover' ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.' : '';
+  } else {
+    headline.textContent = 'Welcome';
+    sub.textContent = cabinLabel;
+    meta.textContent = 'Unable to load booking details right now.';
+    extra.textContent = '';
   }
 
-  function scheduleReloads(times) {
+  /* ======== VIDEO → SLIDESHOW → VIDEO LOOP ======== */
+  const video = document.getElementById('bgVideo');
+  const slidesWrap = document.getElementById('slides');
+  const slides = Array.from(slidesWrap.querySelectorAll('.slide'));
+  let slideIdx = 0, slideTimer = null, backToVideoTimer = null, safetyTimer = null;
+
+  function showVideo() {
+    clearTimers();
+    slidesWrap.classList.remove('visible');
+    video.classList.add('visible');
+    // play then schedule switch to slideshow after one run (use duration if known)
+    const play = () => {
+      try { video.currentTime = 0; video.play().catch(()=>{}); } catch(e){}
+      const dur = isFinite(video.duration) && video.duration>2 ? video.duration*1000 : 30000;
+      backToVideoTimer = setTimeout(showSlideshow, dur);
+    };
+    if (video.readyState >= 1) play(); else video.addEventListener('loadedmetadata', play, {once:true});
+  }
+
+  function showSlideshow() {
+    clearTimers();
+    video.classList.remove('visible');
+    slidesWrap.classList.add('visible');
+    slideIdx = 0;
+    slides.forEach(s=>s.classList.remove('active'));
+    slides[0].classList.add('active');
+
+    slideTimer = setInterval(()=>{
+      slides[slideIdx].classList.remove('active');
+      slideIdx = (slideIdx+1)%slides.length;
+      slides[slideIdx].classList.add('active');
+    }, SLIDE_DURATION_MS);
+
+    backToVideoTimer = setTimeout(showVideo, SLIDESHOW_TOTAL_MS);
+  }
+
+  function clearTimers(){
+    if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
+    if (backToVideoTimer) { clearTimeout(backToVideoTimer); backToVideoTimer = null; }
+    if (safetyTimer) { clearTimeout(safetyTimer); safetyTimer = null; }
+  }
+
+  // If video starts, show it; otherwise start slideshow after fallback timeout
+  const start = () => {
+    safetyTimer = setTimeout(()=>{ if (video.paused) showSlideshow(); }, VIDEO_FALLBACK_START_MS);
+    video.addEventListener('playing', ()=>{ showVideo(); }, {once:true});
+    try { video.play().catch(()=>{}); } catch(e){}
+  };
+  start();
+
+  /* ======== SCHEDULED REFRESHES + HEARTBEAT ======== */
+  function scheduleReloads(times){
     const now = new Date();
-    for (const [h,m] of times) {
+    for (const [h,m] of times){
       const t = new Date();
-      t.setHours(h, m, 0, 0);
-      if (t <= now) t.setDate(t.getDate() + 1);
-      setTimeout(() => location.reload(), t - now);
-    }
-  }
-  function startHeartbeat(minutes = 30) {
-    setTimeout(() => location.reload(), minutes * 60 * 1000);
-    setInterval(() => location.reload(), minutes * 60 * 1000);
-  }
-  scheduleReloads([[7,28],[11,31],[14,31]]);
-  startHeartbeat(30);
-})();
-</script>
-</body>
-</html>
+      t.setHours(h,m,0
