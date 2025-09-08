@@ -1,3 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Welcome – Carrick-a-Rede Retreat</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--glass-bg:rgba(255,255,255,.08);--glass-bd:rgba(255,255,255,.18);}
+  html,body{height:100%;margin:0;background:#0b0f0d;color:#fff;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  /* Background layers */
+  .stage{position:fixed;inset:0;overflow:hidden}
+  video.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
+  .slides{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
+  .slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease}
+  .slide.active{opacity:1}
+  .visible{opacity:1}
+
+  /* Branding + card */
+  .brand{position:fixed;top:24px;left:24px;display:flex;gap:12px;align-items:center;z-index:3}
+  .brand img{height:44px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+  .brand .tag{font-weight:600;letter-spacing:.08em;opacity:.85;text-transform:uppercase}
+
+  .wrap{position:relative;z-index:2;height:100%;display:grid;place-items:center;text-align:center;padding:5vmin}
+  .card{backdrop-filter:blur(10px);background:var(--glass-bg);border:1px solid var(--glass-bd);border-radius:24px;
+        padding:4vmin 6vmin;max-width:86ch;box-shadow:0 10px 40px rgba(0,0,0,.45)}
+  h1{font-size:clamp(2.2rem,4vw + 1rem,4.4rem);margin:1rem 0 .25rem;line-height:1.05}
+  h2{font-size:clamp(1.05rem,1.2vw + .8rem,1.6rem);font-weight:600;opacity:.95;margin:.2rem 0 .8rem}
+  .meta{opacity:.92;font-size:1.05rem;letter-spacing:.02em}
+  .small{opacity:.78;font-size:.95rem;margin-top:1rem}
+  .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:2rem auto 0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- Background: video + slideshow -->
+<div class="stage">
+  <video id="bgVideo" class="bg" autoplay muted playsinline preload="auto">
+    <source src="assets/video.mp4" type="video/mp4">
+  </video>
+  <div id="slides" class="slides">
+    <div class="slide" style="background-image:url('assets/DJI_0868.JPG')"></div>
+    <div class="slide" style="background-image:url('assets/DJI_0970.JPG')"></div>
+    <div class="slide" style="background-image:url('assets/IMG_4182-EDIT-1.jpg')"></div>
+  </div>
+</div>
+
+<!-- Branding -->
+<div class="brand">
+  <img src="assets/logo.png" alt="Carrick-a-Rede Retreat logo">
+  <div class="tag">Causeway Coast</div>
+</div>
+
+<!-- Welcome card -->
+<div class="wrap">
+  <div class="card">
+    <h1 id="headline">Welcome</h1>
+    <h2 id="sub">Relax, unwind & enjoy the view.</h2>
+    <div class="meta" id="meta">Loading your stay details…</div>
+    <div class="small" id="extra">If details look wrong, don’t worry — your stay is confirmed. We’ll update shortly.</div>
+    <div class="spinner" id="spin"></div>
+  </div>
+</div>
+
 <script>
 (async () => {
   const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
@@ -49,7 +115,7 @@
   const slides = Array.from(slidesWrap.querySelectorAll('.slide'));
   let slideIdx = 0, slideTimer = null, backToVideoTimer = null;
 
-  // Start with the slideshow visible as a safe default
+  // Start with slideshow visible
   function startSlideshow() {
     video.classList.remove('visible');
     slidesWrap.classList.add('visible');
@@ -65,10 +131,9 @@
   }
 
   function showVideoThenReturn() {
-    // Only switch to video if it has real frames (readyState>=2 and videoWidth>0)
     const hasFrames = () => video.readyState >= 2 && video.videoWidth > 0;
     const switchToVideo = () => {
-      if (!hasFrames()) return; // guard
+      if (!hasFrames()) return;
       slidesWrap.classList.remove('visible');
       video.classList.add('visible');
       try { video.currentTime = 0; video.play().catch(()=>{}); } catch(e){}
@@ -79,18 +144,16 @@
 
     if (hasFrames()) switchToVideo();
     else {
-      // wait for first decoded frame, then switch
       video.addEventListener('loadeddata', switchToVideo, { once:true });
       video.addEventListener('canplay', switchToVideo, { once:true });
-      video.addEventListener('error', () => { /* stay on slideshow */ }, { once:true });
+      video.addEventListener('error', () => {}, { once:true });
       try { video.play().catch(()=>{}); } catch(e){}
-      // hard fallback: if still no frames after 8s, keep slideshow
-      setTimeout(() => { if (!hasFrames()) {/* do nothing, slideshow stays */} }, 8000);
+      setTimeout(() => { if (!hasFrames()) { /* slideshow stays */ } }, 8000);
     }
   }
 
   startSlideshow();          // Show photos immediately
-  showVideoThenReturn();     // Fade to video only if/when it’s actually decodable
+  showVideoThenReturn();     // Switch to video only if/when it has frames
 
   // --- scheduled refreshes + heartbeat ---
   function scheduleReloads(times){
@@ -101,7 +164,9 @@
       setTimeout(()=>location.reload(), t-now);
     }
   }
-  setInterval(()=>location.reload(), 30*60*1000);  // heartbeat 30 min
+  setInterval(()=>location.reload(), 30*60*1000);
   scheduleReloads([[7,28],[11,31],[14,31]]);
 })();
 </script>
+</body>
+</html>
