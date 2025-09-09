@@ -19,13 +19,13 @@
 
   /* Branding + card */
   .brand{position:fixed;top:24px;left:24px;display:flex;gap:12px;align-items:center;z-index:3}
-  .brand img{height:44px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+  .brand img{height:120px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
   .brand .tag{font-weight:600;letter-spacing:.08em;opacity:.85;text-transform:uppercase}
 
   .wrap{position:relative;z-index:2;height:100%;display:grid;place-items:center;text-align:center;padding:5vmin}
   .card{backdrop-filter:blur(10px);background:var(--glass-bg);border:1px solid var(--glass-bd);border-radius:24px;
         padding:4vmin 6vmin;max-width:86ch;box-shadow:0 10px 40px rgba(0,0,0,.45)}
-  h1{font-size:clamp(2.2rem,4vw + 1rem,4.4rem);margin:1rem 0 .25rem;line-height:1.05}
+  h1{font-size:clamp(2.2rem,4vw + 1rem,4.6rem);margin:1rem 0 .25rem;line-height:1.05}
   h2{font-size:clamp(1.05rem,1.2vw + .8rem,1.6rem);font-weight:600;opacity:.95;margin:.2rem 0 .8rem}
   .meta{opacity:.92;font-size:1.05rem;letter-spacing:.02em}
   .small{opacity:.78;font-size:.95rem;margin-top:1rem}
@@ -83,16 +83,32 @@
     const extra=document.getElementById('extra');
     document.getElementById('spin').style.display='none';
 
-    const s=(n,w)=>n===1?w:w+'s';
+    const plural=(n,w)=>n===1?w:w+'s';
+
+    // fallbacks in case API misses fields
+    const pretty=(iso)=> iso ? new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : null;
+    let { nights, stayNight, checkoutPretty, checkinISO, checkoutISO } = j;
+    if (!nights && checkinISO && checkoutISO) {
+      const ms = new Date(checkoutISO) - new Date(checkinISO);
+      nights = Math.max(1, Math.round(ms/86400000));
+    }
+    if (!checkoutPretty) checkoutPretty = pretty(checkoutISO);
+    if (!stayNight && nights && checkinISO) {
+      const todayISO = new Date().toISOString().slice(0,10);
+      const idx = Math.max(1, Math.round((new Date(todayISO) - new Date(checkinISO))/86400000) + 1);
+      stayNight = `${idx} of ${nights}`;
+    }
 
     if (j.success && j.guestName) {
       const first=j.guestName.trim().split(/\s+/)[0];
       headline.textContent=`Welcome, ${first}!`;
       sub.textContent=`${cabinLabel} • ${j.dateISO}`;
-      if (j.stayNight && j.nights && j.checkoutPretty) {
-        meta.textContent=`Night ${j.stayNight} • Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
-      } else if (j.nights && j.checkoutPretty) {
-        meta.textContent=`Staying ${j.nights} ${s(j.nights,'night')} • Checkout ${j.checkoutPretty}`;
+      if (stayNight && nights && checkoutPretty) {
+        meta.textContent=`Night ${stayNight} • Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty}`;
+      } else if (nights && checkoutPretty) {
+        meta.textContent=`Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty}`;
+      } else if (checkoutPretty) {
+        meta.textContent=`Checkout ${checkoutPretty}`;
       } else {
         meta.textContent='We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
       }
@@ -115,7 +131,6 @@
   const slides = Array.from(slidesWrap.querySelectorAll('.slide'));
   let slideIdx = 0, slideTimer = null, backToVideoTimer = null;
 
-  // Start with slideshow visible
   function startSlideshow() {
     video.classList.remove('visible');
     slidesWrap.classList.add('visible');
@@ -141,19 +156,18 @@
       clearTimeout(backToVideoTimer);
       backToVideoTimer = setTimeout(startSlideshow, dur);
     };
-
     if (hasFrames()) switchToVideo();
     else {
       video.addEventListener('loadeddata', switchToVideo, { once:true });
-      video.addEventListener('canplay', switchToVideo, { once:true });
-      video.addEventListener('error', () => {}, { once:true });
+      video.addEventListener('canplay',    switchToVideo, { once:true });
+      video.addEventListener('error',      () => {},      { once:true });
       try { video.play().catch(()=>{}); } catch(e){}
-      setTimeout(() => { if (!hasFrames()) { /* slideshow stays */ } }, 8000);
+      setTimeout(() => { if (!hasFrames()) {/* keep slideshow */} }, 8000);
     }
   }
 
-  startSlideshow();          // Show photos immediately
-  showVideoThenReturn();     // Switch to video only if/when it has frames
+  startSlideshow();          // show images immediately
+  showVideoThenReturn();     // fade to video only when it has frames
 
   // --- scheduled refreshes + heartbeat ---
   function scheduleReloads(times){
@@ -164,7 +178,7 @@
       setTimeout(()=>location.reload(), t-now);
     }
   }
-  setInterval(()=>location.reload(), 30*60*1000);
+  setInterval(()=>location.reload(), 30*60*1000); // heartbeat 30 min
   scheduleReloads([[7,28],[11,31],[14,31]]);
 })();
 </script>
