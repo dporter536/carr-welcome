@@ -9,6 +9,7 @@
 <style>
   :root{--glass-bg:rgba(255,255,255,.08);--glass-bd:rgba(255,255,255,.18);}
   html,body{height:100%;margin:0;background:#0b0f0d;color:#fff;font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+
   /* Background layers */
   .stage{position:fixed;inset:0;overflow:hidden}
   video.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
@@ -66,27 +67,28 @@
 
 <script>
 (async () => {
+  /* ---------- CONFIG ---------- */
   const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
   const params = new URLSearchParams(location.search);
   const cabinParam = params.get('cabin') || 'C1';
   const up = cabinParam.toUpperCase();
   const cabinLabel = up==='C1'?'Cabin 1':up==='C2'?'Cabin 2':up==='C3'?'Cabin 3':cabinParam;
 
-  // --- fetch data ---
+  /* ---------- FETCH & RENDER ---------- */
   try {
     const r = await fetch(`${API}?cabin=${encodeURIComponent(cabinParam)}&v=${Date.now()}`, { cache:'no-store' });
     const j = await r.json();
 
-    const headline=document.getElementById('headline');
-    const sub=document.getElementById('sub');
-    const meta=document.getElementById('meta');
-    const extra=document.getElementById('extra');
-    document.getElementById('spin').style.display='none';
+    const headline = document.getElementById('headline');
+    const sub = document.getElementById('sub');
+    const meta = document.getElementById('meta');
+    const extra = document.getElementById('extra');
+    document.getElementById('spin').style.display = 'none';
 
     const plural=(n,w)=>n===1?w:w+'s';
-
-    // fallbacks in case API misses fields
     const pretty=(iso)=> iso ? new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : null;
+
+    // compute fallbacks if API missed any fields
     let { nights, stayNight, checkoutPretty, checkinISO, checkoutISO } = j;
     if (!nights && checkinISO && checkoutISO) {
       const ms = new Date(checkoutISO) - new Date(checkinISO);
@@ -100,32 +102,35 @@
     }
 
     if (j.success && j.guestName) {
-      const first=j.guestName.trim().split(/\s+/)[0];
-      headline.textContent=`Welcome, ${first}!`;
-      sub.textContent=`${cabinLabel} • ${j.dateISO}`;
+      const first = j.guestName.trim().split(/\s+/)[0];
+      headline.textContent = `Welcome, ${first}!`;
+      sub.textContent = `${cabinLabel} • ${j.dateISO}`;
       if (stayNight && nights && checkoutPretty) {
-        meta.textContent=`Night ${stayNight} • Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty}`;
+        meta.textContent = `Night ${stayNight} • Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty} • 11:30am`;
       } else if (nights && checkoutPretty) {
-        meta.textContent=`Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty}`;
+        meta.textContent = `Staying ${nights} ${plural(nights,'night')} • Checkout ${checkoutPretty} • 11:30am`;
       } else if (checkoutPretty) {
-        meta.textContent=`Checkout ${checkoutPretty}`;
+        meta.textContent = `Checkout ${checkoutPretty} • 11:30am`;
       } else {
-        meta.textContent='We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
+        meta.textContent = 'We’re thrilled to host you. The hot tub is ready — have an amazing stay.';
       }
-      extra.textContent='';
+      extra.textContent = '';
     } else if (j.success) {
-      headline.textContent='Welcome to Carrick-a-Rede Retreat';
-      sub.textContent=cabinLabel;
-      meta.textContent=`Today: ${new Date().toLocaleDateString('en-GB')}`;
-      extra.textContent=j.phase==='neutral_changeover' ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.' : '';
+      headline.textContent = 'Welcome to Carrick-a-Rede Retreat';
+      sub.textContent = cabinLabel;
+      meta.textContent = `Today: ${new Date().toLocaleDateString('en-GB')}`;
+      extra.textContent = j.phase==='neutral_changeover' ? 'Housekeeping in progress — we’ll have everything perfect for your arrival.' : '';
     } else {
-      meta.textContent='Unable to load booking details right now.';
+      headline.textContent = 'Welcome';
+      sub.textContent = cabinLabel;
+      meta.textContent = 'Unable to load booking details right now.';
+      extra.textContent = '';
     }
   } catch {
     document.getElementById('spin').style.display='none';
   }
 
-  // --- robust video/slideshow control ---
+  /* ---------- VIDEO → SLIDESHOW → VIDEO LOOP (robust) ---------- */
   const video = document.getElementById('bgVideo');
   const slidesWrap = document.getElementById('slides');
   const slides = Array.from(slidesWrap.querySelectorAll('.slide'));
@@ -169,7 +174,7 @@
   startSlideshow();          // show images immediately
   showVideoThenReturn();     // fade to video only when it has frames
 
-  // --- scheduled refreshes + heartbeat ---
+  /* ---------- AUTO REFRESH ---------- */
   function scheduleReloads(times){
     const now=new Date();
     for(const [h,m] of times){
