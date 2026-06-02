@@ -8,7 +8,7 @@
 
 <title>Welcome – Carrick-a-Rede Retreat</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
@@ -50,56 +50,31 @@ body{
 .overlay{
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.25),
-      rgba(0,0,0,0.45)
-    );
+  background:rgba(0,0,0,0.28);
 }
 
 /* LOGO */
 
 .brand{
   position:absolute;
-  top:28px;
-  left:28px;
+  top:22px;
+  left:22px;
   z-index:10;
 
-  padding:24px 36px;
+  padding:14px 22px;
 
-  border-radius:24px;
+  border-radius:20px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(85,95,105,0.55),
-      rgba(40,46,52,0.60)
-    );
+  background:rgba(70,80,95,0.35);
 
-  backdrop-filter:blur(18px);
+  backdrop-filter:blur(12px);
 
-  border:1px solid rgba(255,255,255,0.12);
-
-  box-shadow:
-    0 12px 40px rgba(0,0,0,0.32);
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  border:1px solid rgba(255,255,255,0.08);
 }
 
 .brand img{
-  height:82px;
-
-  opacity:1;
-
-  transform:scale(1.35);
-
-  filter:
-    brightness(2.8)
-    contrast(1.2)
-    drop-shadow(0 0 8px rgba(255,255,255,0.18));
+  height:52px;
+  opacity:0.95;
 }
 
 /* MAIN CARD */
@@ -116,128 +91,109 @@ body{
 
 .card{
 
-  width:900px;
-  max-width:88%;
+  width:760px;
+  max-width:84%;
 
-  padding:55px 60px;
+  padding:42px;
 
   border-radius:34px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(60,70,78,0.42),
-      rgba(20,22,24,0.48)
-    );
+  background:rgba(45,48,55,0.38);
 
   backdrop-filter:blur(20px);
 
   border:1px solid rgba(255,255,255,0.08);
 
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.30);
-
   text-align:center;
 }
 
-/* TEXT */
-
 h1{
   margin:0;
-  font-size:76px;
-  line-height:1.04;
+  font-size:72px;
+  line-height:1.05;
   font-weight:700;
-  letter-spacing:-2px;
-}
-
-.guest-name{
-  display:block;
-  white-space:nowrap;
 }
 
 h2{
   margin-top:18px;
-  font-size:32px;
+  font-size:34px;
   font-weight:600;
-  opacity:0.98;
 }
 
 .meta{
-  margin-top:38px;
-  font-size:24px;
-  line-height:1.5;
+  margin-top:30px;
+  font-size:22px;
   opacity:0.96;
 }
 
 .extra{
   margin-top:14px;
   font-size:18px;
-  opacity:0.78;
+  opacity:0.84;
 }
 
 .temp{
-  margin-top:34px;
+  margin-top:28px;
   font-size:20px;
-  opacity:0.88;
+  opacity:0.82;
 }
 
-/* QR SECTION */
+/* QR CODES */
 
 .qr-wrap{
   position:absolute;
-  right:26px;
-  bottom:26px;
-
-  z-index:10;
+  right:20px;
+  bottom:20px;
+  z-index:20;
 
   display:flex;
-  gap:16px;
+  gap:12px;
 }
 
 .qr-card{
 
-  width:120px;
+  width:92px;
 
-  padding:12px;
+  padding:10px;
 
-  border-radius:22px;
+  border-radius:20px;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(42,48,55,0.58),
-      rgba(18,20,22,0.66)
-    );
+  background:rgba(40,42,48,0.55);
 
-  backdrop-filter:blur(16px);
+  backdrop-filter:blur(14px);
 
   border:1px solid rgba(255,255,255,0.08);
 
   text-align:center;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,0.30);
 }
 
 .qr-card img{
-  width:88px;
-  height:88px;
-  border-radius:10px;
+  width:100%;
+  border-radius:8px;
   background:white;
-  padding:5px;
 }
 
 .qr-title{
-  margin-top:10px;
-  font-size:14px;
-  font-weight:600;
+  margin-top:8px;
+  font-size:15px;
+  font-weight:700;
 }
 
 .qr-sub{
-  margin-top:4px;
+  margin-top:2px;
   font-size:11px;
-  opacity:0.72;
-  line-height:1.35;
+  opacity:0.8;
+  line-height:1.25;
+}
+
+/* TV OPTIMISATION */
+
+@media (max-height: 900px){
+
+  .card{
+    transform:scale(0.9);
+  }
+
 }
 
 </style>
@@ -272,7 +228,7 @@ h2{
 
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN CARD -->
 
 <div class="wrap">
 
@@ -287,12 +243,14 @@ h2{
     </h2>
 
     <div class="meta" id="meta">
-      Loading your stay…
+      Loading your stay...
     </div>
 
-    <div class="extra" id="extra"></div>
+    <div class="extra" id="extra">
+    </div>
 
-    <div class="temp" id="tempInfo"></div>
+    <div class="temp" id="tempInfo">
+    </div>
 
   </div>
 
@@ -306,9 +264,7 @@ h2{
 
   <div class="qr-card">
 
-    <img
-      src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=WIFI:T:WPA;S:Carrick-a-Rede-Retreat;P:12345678910;;"
-    >
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=WIFI:T:WPA;S:Carrick-a-Rede-Retreat;P:12345678910;;">
 
     <div class="qr-title">
       WiFi
@@ -324,9 +280,7 @@ h2{
 
   <div class="qr-card">
 
-    <img
-      src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://wa.me/message/5ZQ35SM2BHFIE1"
-    >
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://wa.me/message/5ZQ35SM2BHFIE1">
 
     <div class="qr-title">
       WhatsApp Support
@@ -347,7 +301,7 @@ h2{
 const API =
 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
 
-/* CABIN */
+/* URL PARAMS */
 
 const params =
 new URLSearchParams(window.location.search);
@@ -355,21 +309,19 @@ new URLSearchParams(window.location.search);
 const cabin =
 params.get('cabin') || 'C1';
 
-/* LOAD DATA */
-
 const forceTime =
 params.get('forceTime');
 
-let apiUrl =
-API + '?cabin=' + cabin;
+/* LOAD DATA */
+
+let url =
+API + '?cabin=' + cabin + '&v=' + Date.now();
 
 if(forceTime){
-  apiUrl += '&forceTime=' + forceTime;
+  url += '&forceTime=' + forceTime;
 }
 
-apiUrl += '&v=' + Date.now();
-
-fetch(apiUrl)
+fetch(url)
 
 .then(r => r.json())
 
@@ -381,15 +333,16 @@ fetch(apiUrl)
 
   if(data.guestName){
 
-    document.getElementById('headline').innerHTML =
-      'Welcome<br><span class="guest-name">' +
-      data.guestName +
-      '</span>';
+    document.getElementById('headline').innerText =
+      'Welcome';
 
     document.getElementById('subheadline').innerText =
-      cabin.replace('C','Cabin ');
+      data.guestName;
 
     document.getElementById('meta').innerText =
+      cabin.replace('C','Cabin ');
+
+    document.getElementById('extra').innerText =
       'Night ' +
       data.stayNight +
       ' · Checkout ' +
@@ -397,14 +350,11 @@ fetch(apiUrl)
       ' · ' +
       data.checkoutTimePretty;
 
-    document.getElementById('extra').innerText =
-      'Relax, switch off and enjoy the views.';
-
   }
 
   else{
 
-    document.getElementById('headline').innerHTML =
+    document.getElementById('headline').innerText =
       'Welcome';
 
     document.getElementById('subheadline').innerText =
