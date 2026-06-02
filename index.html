@@ -2,17 +2,13 @@
 <html lang="en">
 
 <head>
-
 <meta charset="utf-8" />
-
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-
 <title>Welcome – Carrick-a-Rede Retreat</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-
 html,body{
   margin:0;
   width:100%;
@@ -23,11 +19,7 @@ html,body{
   background:black;
 }
 
-body{
-  position:relative;
-}
-
-/* BACKGROUND */
+body{position:relative;}
 
 .stage{
   position:fixed;
@@ -44,17 +36,13 @@ body{
   transition:opacity 1.5s ease;
 }
 
-.slide.active{
-  opacity:1;
-}
+.slide.active{opacity:1;}
 
 .overlay{
   position:absolute;
   inset:0;
   background:rgba(0,0,0,0.35);
 }
-
-/* LOGO */
 
 .brand{
   position:absolute;
@@ -66,17 +54,13 @@ body{
   gap:20px;
 }
 
-.brand img{
-  height:60px;
-}
+.brand img{height:60px;}
 
 .brand-text{
   font-size:28px;
   font-weight:600;
   letter-spacing:2px;
 }
-
-/* CARD */
 
 .wrap{
   position:relative;
@@ -89,36 +73,34 @@ body{
 }
 
 .card{
-  width:900px;
-  max-width:90%;
-  padding:60px;
+  width:980px;
+  max-width:88%;
+  padding:56px 64px;
   border-radius:30px;
-
-  background:rgba(30,30,30,0.45);
-
+  background:rgba(30,30,30,0.48);
   backdrop-filter:blur(16px);
-
   border:1px solid rgba(255,255,255,0.12);
-
   text-align:center;
 }
 
-h1{
-  margin:0;
-  font-size:82px;
-  line-height:1;
+.main-title{
+  font-size:72px;
   font-weight:700;
+  line-height:1.06;
+  max-width:980px;
+  margin:0 auto 18px auto;
+  letter-spacing:-2px;
 }
 
 h2{
-  margin-top:25px;
-  font-size:42px;
+  margin-top:18px;
+  font-size:38px;
   font-weight:600;
 }
 
 .meta{
-  margin-top:30px;
-  font-size:28px;
+  margin-top:28px;
+  font-size:26px;
   opacity:0.95;
 }
 
@@ -129,130 +111,74 @@ h2{
 }
 
 .temp{
-  margin-top:35px;
+  margin-top:30px;
   font-size:24px;
   opacity:0.82;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <div class="stage">
-
-  <div class="slide active"
-       style="background-image:url('assets/DJI_0868.JPG')">
-  </div>
-
-  <div class="slide"
-       style="background-image:url('assets/DJI_0970.JPG')">
-  </div>
-
-  <div class="slide"
-       style="background-image:url('assets/IMG_4182-EDIT-1.jpg')">
-  </div>
-
+  <div class="slide active" style="background-image:url('assets/DJI_0868.JPG')"></div>
+  <div class="slide" style="background-image:url('assets/DJI_0970.JPG')"></div>
+  <div class="slide" style="background-image:url('assets/IMG_4182-EDIT-1.jpg')"></div>
   <div class="overlay"></div>
-
 </div>
 
 <div class="brand">
-
   <img src="assets/logo.png">
-
-  <div class="brand-text">
-    CAUSEWAY COAST
-  </div>
-
+  <div class="brand-text">CAUSEWAY COAST</div>
 </div>
 
 <div class="wrap">
-
   <div class="card">
 
-    <h1 id="headline">
-      Welcome
-    </h1>
+    <h1 id="headline" class="main-title">Welcome</h1>
 
-    <h2 id="subheadline">
-      to Carrick-a-Rede Retreat
-    </h2>
+    <h2 id="subheadline">to Carrick-a-Rede Retreat</h2>
 
-    <div class="meta" id="meta">
-      Loading your stay…
-    </div>
+    <div class="meta" id="meta">Loading your stay…</div>
 
-    <div class="extra" id="extra">
-    </div>
+    <div class="extra" id="extra"></div>
 
-    <div class="temp" id="tempInfo">
-    </div>
+    <div class="temp" id="tempInfo"></div>
 
   </div>
-
 </div>
 
 <script>
+const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
 
-/* ---------------------------
-   API
----------------------------- */
+const params = new URLSearchParams(window.location.search);
+const cabin = params.get('cabin') || 'C1';
+const forceTime = params.get('forceTime');
 
-const API =
-'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
+let apiUrl = API + '?cabin=' + encodeURIComponent(cabin) + '&v=' + Date.now();
 
-/* ---------------------------
-   CABIN
----------------------------- */
+if(forceTime){
+  apiUrl += '&forceTime=' + encodeURIComponent(forceTime);
+}
 
-const params =
-new URLSearchParams(window.location.search);
-
-const cabin =
-params.get('cabin') || 'C1';
-
-/* ---------------------------
-   LOAD DATA
----------------------------- */
-
-fetch(API + '?cabin=' + cabin + '&v=' + Date.now())
-
+fetch(apiUrl)
 .then(r => r.json())
-
 .then(data => {
 
-  console.log(data);
-
-  /* GUEST */
-
   if(data.guestName){
+    const first = data.firstName || data.guestName;
 
-    const first =
-      data.firstName || data.guestName;
-
-    document.getElementById('headline').innerText =
-      'Welcome ' + first;
-
-    document.getElementById('subheadline').innerText =
-      cabin.replace('C','Cabin ');
+    document.getElementById('headline').innerText = 'Welcome ' + first;
+    document.getElementById('subheadline').innerText = cabin.replace('C','Cabin ');
 
     document.getElementById('meta').innerText =
-      'Night ' +
-      data.stayNight +
-      ' · Checkout ' +
-      data.checkoutPretty +
-      ' · ' +
-      data.checkoutTimePretty;
+      'Night ' + data.stayNight +
+      ' · Checkout ' + data.checkoutPretty +
+      ' · ' + data.checkoutTimePretty;
 
     document.getElementById('extra').innerText =
       'Relax, switch off and enjoy the views.';
-
-  }
-
-  else{
-
+  } else {
     document.getElementById('headline').innerText =
       'Welcome to Carrick-a-Rede Retreat';
 
@@ -261,52 +187,28 @@ fetch(API + '?cabin=' + cabin + '&v=' + Date.now())
 
     document.getElementById('meta').innerText =
       'We hope you have a lovely stay.';
-
   }
 
-  /* TEMPERATURE */
-
   if(data.sensor && data.sensor.available){
-
     document.getElementById('tempInfo').innerText =
-      'Inside ' +
-      data.sensor.temperature +
-      '°C · Humidity ' +
-      data.sensor.humidity +
-      '%';
-
+      'Inside ' + data.sensor.temperature +
+      '°C · Humidity ' + data.sensor.humidity + '%';
   }
 
 })
-
 .catch(err => {
-
   console.log(err);
-
 });
 
-/* ---------------------------
-   SLIDESHOW
----------------------------- */
-
-const slides =
-document.querySelectorAll('.slide');
-
+const slides = document.querySelectorAll('.slide');
 let current = 0;
 
 setInterval(() => {
-
   slides[current].classList.remove('active');
-
-  current =
-    (current + 1) % slides.length;
-
+  current = (current + 1) % slides.length;
   slides[current].classList.add('active');
-
 }, 8000);
-
 </script>
 
 </body>
-
 </html>
