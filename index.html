@@ -357,7 +357,19 @@ params.get('cabin') || 'C1';
 
 /* LOAD DATA */
 
-fetch(API + '?cabin=' + cabin + '&v=' + Date.now())
+const forceTime =
+params.get('forceTime');
+
+let apiUrl =
+API + '?cabin=' + cabin;
+
+if(forceTime){
+  apiUrl += '&forceTime=' + forceTime;
+}
+
+apiUrl += '&v=' + Date.now();
+
+fetch(apiUrl)
 
 .then(r => r.json())
 
