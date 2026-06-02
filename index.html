@@ -4,11 +4,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+
 <title>Welcome – Carrick-a-Rede Retreat</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+
 html,body{
   margin:0;
   width:100%;
@@ -19,7 +21,11 @@ html,body{
   background:black;
 }
 
-body{position:relative;}
+body{
+  position:relative;
+}
+
+/* BACKGROUND */
 
 .stage{
   position:fixed;
@@ -36,25 +42,39 @@ body{position:relative;}
   transition:opacity 1.5s ease;
 }
 
-.slide.active{opacity:1;}
+.slide.active{
+  opacity:1;
+}
 
 .overlay{
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,0.35);
+  background:rgba(0,0,0,0.38);
 }
+
+/* BRAND */
 
 .brand{
   position:absolute;
-  top:40px;
-  left:40px;
+  top:36px;
+  left:36px;
   z-index:10;
+
   display:flex;
   align-items:center;
   gap:20px;
+
+  padding:14px 20px;
+  border-radius:18px;
+
+  background:rgba(0,0,0,0.28);
+  backdrop-filter:blur(8px);
 }
 
-.brand img{height:60px;}
+.brand img{
+  height:68px;
+  filter:drop-shadow(0 3px 10px rgba(0,0,0,0.9));
+}
 
 .brand-text{
   font-size:28px;
@@ -62,11 +82,15 @@ body{position:relative;}
   letter-spacing:2px;
 }
 
+/* MAIN CARD */
+
 .wrap{
   position:relative;
   z-index:5;
+
   width:100%;
   height:100%;
+
   display:flex;
   justify-content:center;
   align-items:center;
@@ -75,27 +99,39 @@ body{position:relative;}
 .card{
   width:980px;
   max-width:88%;
+
   padding:56px 64px;
+
   border-radius:30px;
-  background:rgba(30,30,30,0.48);
+
+  background:rgba(30,30,30,0.45);
+
   backdrop-filter:blur(16px);
+
   border:1px solid rgba(255,255,255,0.12);
+
   text-align:center;
 }
 
 .main-title{
-  font-size:72px;
+  font-size:76px;
   font-weight:700;
-  line-height:1.06;
-  max-width:980px;
-  margin:0 auto 18px auto;
+  line-height:1;
+  margin:0;
   letter-spacing:-2px;
 }
 
-h2{
+.guest-name{
   margin-top:18px;
-  font-size:38px;
+  font-size:50px;
   font-weight:600;
+}
+
+.subheading{
+  margin-top:14px;
+  font-size:34px;
+  font-weight:600;
+  opacity:0.95;
 }
 
 .meta{
@@ -105,109 +141,278 @@ h2{
 }
 
 .extra{
-  margin-top:20px;
+  margin-top:18px;
   font-size:22px;
-  opacity:0.85;
+  opacity:0.82;
 }
 
 .temp{
   margin-top:30px;
   font-size:24px;
-  opacity:0.82;
+  opacity:0.85;
 }
+
+/* QR SECTION */
+
+.qr-row{
+  position:absolute;
+  right:40px;
+  bottom:40px;
+
+  z-index:20;
+
+  display:flex;
+  gap:20px;
+}
+
+.qr-card{
+  width:170px;
+
+  padding:18px;
+
+  border-radius:22px;
+
+  background:rgba(20,20,20,0.45);
+
+  backdrop-filter:blur(12px);
+
+  text-align:center;
+
+  border:1px solid rgba(255,255,255,0.12);
+}
+
+.qr-card img{
+  width:100%;
+  border-radius:12px;
+  background:white;
+}
+
+.qr-title{
+  margin-top:12px;
+  font-size:18px;
+  font-weight:600;
+}
+
+.qr-sub{
+  margin-top:6px;
+  font-size:14px;
+  opacity:0.75;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="stage">
-  <div class="slide active" style="background-image:url('assets/DJI_0868.JPG')"></div>
-  <div class="slide" style="background-image:url('assets/DJI_0970.JPG')"></div>
-  <div class="slide" style="background-image:url('assets/IMG_4182-EDIT-1.jpg')"></div>
+
+  <div class="slide active"
+       style="background-image:url('assets/DJI_0868.JPG')">
+  </div>
+
+  <div class="slide"
+       style="background-image:url('assets/DJI_0970.JPG')">
+  </div>
+
+  <div class="slide"
+       style="background-image:url('assets/IMG_4182-EDIT-1.jpg')">
+  </div>
+
   <div class="overlay"></div>
+
 </div>
+
+<!-- BRAND -->
 
 <div class="brand">
+
   <img src="assets/logo.png">
-  <div class="brand-text">CAUSEWAY COAST</div>
+
+  <div class="brand-text">
+    CAUSEWAY COAST
+  </div>
+
 </div>
 
+<!-- MAIN -->
+
 <div class="wrap">
+
   <div class="card">
 
-    <h1 id="headline" class="main-title">Welcome</h1>
+    <div class="main-title">
+      Welcome
+    </div>
 
-    <h2 id="subheadline">to Carrick-a-Rede Retreat</h2>
+    <div class="guest-name" id="guestName">
+      to Carrick-a-Rede Retreat
+    </div>
 
-    <div class="meta" id="meta">Loading your stay…</div>
+    <div class="subheading" id="subheading">
+      Cabin 1
+    </div>
 
-    <div class="extra" id="extra"></div>
+    <div class="meta" id="meta">
+      Loading your stay…
+    </div>
 
-    <div class="temp" id="tempInfo"></div>
+    <div class="extra" id="extra">
+    </div>
+
+    <div class="temp" id="tempInfo">
+    </div>
 
   </div>
+
+</div>
+
+<!-- QR CODES -->
+
+<div class="qr-row">
+
+  <div class="qr-card">
+
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=WIFI:T:WPA;S=Carrick-a-Rede Retreat;P=YOURPASSWORDHERE;;">
+
+    <div class="qr-title">
+      WiFi
+    </div>
+
+    <div class="qr-sub">
+      Scan to connect
+    </div>
+
+  </div>
+
+  <div class="qr-card">
+
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https://wa.me/447000000000">
+
+    <div class="qr-title">
+      WhatsApp Support
+    </div>
+
+    <div class="qr-sub">
+      Message us anytime
+    </div>
+
+  </div>
+
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
 
-const params = new URLSearchParams(window.location.search);
-const cabin = params.get('cabin') || 'C1';
-const forceTime = params.get('forceTime');
+/* API */
 
-let apiUrl = API + '?cabin=' + encodeURIComponent(cabin) + '&v=' + Date.now();
+const API =
+'https://script.google.com/macros/s/AKfycby8ZTL2LoFxGjKrVHIsShHb1Z722mZxUvi0YyHXuuTgBEn2XCtMyfny7tvuEIzn0STAEg/exec';
+
+/* CABIN */
+
+const params =
+new URLSearchParams(window.location.search);
+
+const cabin =
+params.get('cabin') || 'C1';
+
+const forceTime =
+params.get('forceTime');
+
+/* BUILD API URL */
+
+let apiUrl =
+API + '?cabin=' +
+encodeURIComponent(cabin) +
+'&v=' + Date.now();
 
 if(forceTime){
-  apiUrl += '&forceTime=' + encodeURIComponent(forceTime);
+  apiUrl += '&forceTime=' +
+  encodeURIComponent(forceTime);
 }
 
+/* LOAD */
+
 fetch(apiUrl)
+
 .then(r => r.json())
+
 .then(data => {
 
-  if(data.guestName){
-    const first = data.firstName || data.guestName;
+  console.log(data);
 
-    document.getElementById('headline').innerText = 'Welcome ' + first;
-    document.getElementById('subheadline').innerText = cabin.replace('C','Cabin ');
+  document.getElementById('subheading').innerText =
+    cabin.replace('C','Cabin ');
+
+  /* GUEST */
+
+  if(data.guestName){
+
+    document.getElementById('guestName').innerText =
+      data.guestName;
 
     document.getElementById('meta').innerText =
-      'Night ' + data.stayNight +
-      ' · Checkout ' + data.checkoutPretty +
-      ' · ' + data.checkoutTimePretty;
+      'Night ' +
+      data.stayNight +
+      ' · Checkout ' +
+      data.checkoutPretty +
+      ' · ' +
+      data.checkoutTimePretty;
 
     document.getElementById('extra').innerText =
       'Relax, switch off and enjoy the views.';
-  } else {
-    document.getElementById('headline').innerText =
-      'Welcome to Carrick-a-Rede Retreat';
 
-    document.getElementById('subheadline').innerText =
-      cabin.replace('C','Cabin ');
+  }
+
+  else{
+
+    document.getElementById('guestName').innerText =
+      'to Carrick-a-Rede Retreat';
 
     document.getElementById('meta').innerText =
       'We hope you have a lovely stay.';
+
   }
 
+  /* TEMPERATURE */
+
   if(data.sensor && data.sensor.available){
+
     document.getElementById('tempInfo').innerText =
-      'Inside ' + data.sensor.temperature +
-      '°C · Humidity ' + data.sensor.humidity + '%';
+      'Inside ' +
+      data.sensor.temperature +
+      '°C · Humidity ' +
+      data.sensor.humidity +
+      '%';
+
   }
 
 })
+
 .catch(err => {
+
   console.log(err);
+
 });
 
-const slides = document.querySelectorAll('.slide');
+/* SLIDESHOW */
+
+const slides =
+document.querySelectorAll('.slide');
+
 let current = 0;
 
 setInterval(() => {
+
   slides[current].classList.remove('active');
-  current = (current + 1) % slides.length;
+
+  current =
+    (current + 1) % slides.length;
+
   slides[current].classList.add('active');
+
 }, 8000);
+
 </script>
 
 </body>
